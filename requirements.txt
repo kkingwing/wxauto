@@ -2,3 +2,7 @@ uiautomation
 Pillow
 pywin32
 psutil
+
+sqlalchemy
+mysqlclient
+openpyxl

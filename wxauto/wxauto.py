@@ -105,7 +105,20 @@ class WeChat(WeChatBase):
         """是否有新消息"""
         self._show()
         return IsRedPixel(self.A_ChatIcon)
-    
+
+
+    def GetNextNewMessage_2(self, savepic=False):
+        """获取下一个新消息"""
+        msgs_ = self.GetAllMessage()
+        print(msgs_)
+        if self.lastmsgid is not None and self.lastmsgid in [i[-1] for i in msgs_[:-1]]:
+            print('获取当前窗口新消息')
+            idx = [i[-1] for i in msgs_].index(self.lastmsgid)
+            MsgItems = self.C_MsgList.GetChildren()[idx+1:]
+            msgs = self._getmsgs(MsgItems, savepic)
+            return {self.CurrentChat(): msgs}
+
+
     def GetNextNewMessage(self, savepic=False):
         """获取下一个新消息"""
         msgs_ = self.GetAllMessage()
