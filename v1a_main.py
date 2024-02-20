@@ -20,7 +20,7 @@ class WechatItemUse:
 
         # 1. 加载所有消息 （注，当前没有办法将手机消息同步到电脑端显示，这是目前微信的问题。）
         flag = True  # 循环标志
-        roll_times = 1  # 向上滚动次数，若为0则获取所有消息
+        roll_times = 0  # 向上滚动次数，若为0则获取所有消息
         try:
             if roll_times > 0:
                 for i in range(roll_times):
@@ -139,10 +139,10 @@ class WechatItemUse:
 if __name__ == '__main__':
     # 获取微信窗口对象
     wiu = WechatItemUse()
-    # wiu.get_msg() # 获取消息
+    wiu.get_msg() # 获取消息
     # wiu.send_msg()  # 发送消息
     # wiu.send_files()  # 发送文件
     # wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），与「获取消息」合用，「检测消息后做动作」。
     # wiu.get_current_name()  # 获取当前窗口名称，用于判断
     # wiu.listen_chat_2()  # 监听消息，自定义
-    wiu.listen_all()  # 监听所有消息（未被屏蔽）
+    # wiu.listen_all()  # 监听所有消息（未被屏蔽）
