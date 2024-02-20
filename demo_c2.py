@@ -92,29 +92,28 @@ class WechatItemUse:
     # 6. 监听消息
     ###
     def listen_chat_2(self):
+        me = '清易'  # 用于判断最新消息记录是否为非本人
         who = "chatgpt测试群"
         self.wx.ChatWith(who=who)  # 跳到窗口
-        msgs_1 = self.wx.GetAllMessage(savepic=False)  # 获取所有消息，图片是否保存
-        # print("全消息:", msgs_1)
-        # print('最后一句的消息', msgs_1[-1])
-        last_msg_id_1 = msgs_1[-1][-1] if msgs_1 else None  # 获取最新消息的id
-        print('最后一句的消息的id', last_msg_id_1)
+        msgs_1 = self.wx.GetAllMessage(savepic=False)  # 先读取一次消息，得到当前消息列表
+        last_msg_id_1 = msgs_1[-1][-1] if msgs_1 else None  # 获取最后一句的消息的id
 
         # 监听消息并回复
         while True:
-            time.sleep(3)
-            msgs_2 = self.wx.GetAllMessage(savepic=False)
-            if last_msg_id_1 is not None and last_msg_id_1 in [i[-1] for i in msgs_2[:-1]]:
-                msgs = self.wx.GetNextNewMessage()  # 获取未读消息
-                print("新获取的未读消息内容: ", msgs)
-                if msgs:
-                    for who, msg in msgs.items():  # 遍历聊天窗口i
-                        print(who, msg)
-                        if msg:  # 如果i聊天窗口非空，发送以下内容
+            # 读取最新聊天记录
+            msgs_2 = self.wx.GetNextNewMessage_2(lastmsgid=last_msg_id_1, savepic=False)
+            if msgs_2:
+                for who, new_msgs in msgs_2.items():  # 遍历聊天窗口i
+                    print('新的消息', who, new_msgs)
+                    last_msg_id_1 = msgs_2[who][-1][-1]  # 更新最后一条的聊天记录
+                    for msg in new_msgs:
+                        print(f'消息内容：  {msg[0]}:{msg[1]}')
+                        if msg[0] != 'SYS' and msg[0] != me:
+                            # 这里写发送消息的方法 可以def
                             self.wx.SendMsg(msg="收到")
             else:
-                print('有所不对，检验')
-
+                print('消息为空，监听中……')
+            time.sleep(5)
 
 
 if __name__ == '__main__':
