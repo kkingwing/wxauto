@@ -1,3 +1,8 @@
+###
+# 功能：使用git_wxauto项目，经过修改，达到微信的一些自动化效果。
+# 当前功能：「获取消息、发送消息及文件、获取未读消息、监听消息」
+# 用途：自动任务，
+###
 from my_method import write_to_sql
 from my_method import today
 
@@ -139,7 +144,7 @@ class WechatItemUse:
 if __name__ == '__main__':
     # 获取微信窗口对象
     wiu = WechatItemUse()
-    wiu.get_msg() # 获取消息
+    wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
     # wiu.send_msg()  # 发送消息
     # wiu.send_files()  # 发送文件
     # wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），与「获取消息」合用，「检测消息后做动作」。
