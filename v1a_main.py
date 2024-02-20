@@ -126,7 +126,7 @@ class WechatItemUse:
             time.sleep(5)
 
     ###
-    # 监听所有消息（未被屏蔽） ，以下为指定，若需要监听所有，修改一下为未指定即可。 有所瑕疵，会持续跳助手。
+    # 7. 监听所有消息（未被屏蔽） ，以下为指定，若需要监听所有，修改一下为未指定即可。 有所瑕疵，会持续跳助手。
     ###
     def listen_all(self):
         while True:
@@ -145,6 +145,74 @@ class WechatItemUse:
                 self.wx.ChatWith(who='文件传输助手')  # 跳回文件传输助手
             time.sleep(5)
 
+    ###
+    # 8. 监测目标微信群消息并转发。（用于过滤关心的内容）
+    ###
+    def listen_and_transpond(self):
+        me = '清易'  # 避开自身的消息检测
+        origin_chat_window = '文件传输助手'
+        listen_groups = ['chatgpt测试群', "小红书运营交流群18"]
+        send_to_who = '数据运营'  # 最好是唯一的，可以是备注名
+        detected_word = '优惠'  # 需要检测的关键字，空文本则不检测关键字
+        self.wx.ChatWith(who=origin_chat_window)  # 初始跳到传输助手对话
+
+        # 获取未读消息
+        while True:
+            # 检测新消息、之后跳回初始文件传输助手，避免检测不到消息
+            msg_ds = self.wx.GetNextNewMessage_3(savepic=False)  # 获取下一个新消息
+            print(msg_ds)
+            if msg_ds:
+                # 处理数据并转发
+                for who, msgs in msg_ds.items():
+                    # 若「监测名称」在监测列表中，且「监测消息」符合关键字，则转发。
+                    # 去掉"已置顶"三个字
+                    # 其中的这一串  "".join([i[-2] for i in msgs]) 是将消息合并，检测关键字是否在其中
+                    bool_group = who.strip('已置顶') in listen_groups
+                    bool_word = detected_word in "".join([i[-2] for i in msgs])
+                    print(bool_group, bool_word)
+                    if bool_group and bool_word:
+                        # 转发，解析消耗表
+                        # 解析新消息，并只保留「包含检测关键字的二级子列表元素」，替换msgs
+                        msgs = [msg for msg in msgs if detected_word in msg[1]]
+                        # 遍历消息，构造发送格式
+                        send_msg = "\n".join([f"{msg[0]}：{msg[1]}" for msg in msgs])
+                        self.wx.SendMsg(msg=send_msg, who=send_to_who)
+                        print('转发成功')
+                    else:
+                        print('不需要转发')
+
+                # 跳回文件助手
+                self.wx.ChatWith(who=origin_chat_window)
+
+            time.sleep(3)
+
+        # msgs_1 = self.wx.GetAllMessage(savepic=False)  # 先读取一次消息，得到当前消息列表
+        # last_msg_id_1 = msgs_1[-1][-1] if msgs_1 else None  # 获取最后一句的消息的id
+        #
+        # while True:
+        #     # 读取最新聊天记录
+        #     msgs_2 = self.wx.GetNextNewMessage_2(lastmsgid=last_msg_id_1, savepic=False)
+        #     if msgs_2:
+        #         for who, new_msgs in msgs_2.items():  # 遍历聊天窗口i
+        #             print('新的消息', who, new_msgs)
+        #             last_msg_id_1 = msgs_2[who][-1][-1]  # 更新最后一条的聊天记录
+        #             for msg in new_msgs:
+        #                 print(f'消息内容：  {msg[0]}:{msg[1]}')
+        #                 if msg[0] != 'SYS' and msg[0] != me:
+        #                     # 这里写发送消息的方法 可以def
+        #                     self.wx.SendMsg(msg="收到")
+        #
+        #     # print(msg)
+        #     # 若存在消息且为指定群
+        #     # 若有未读消息 、 且为指定群
+        #     if msg == None:
+        #         print('没有新消息')
+        #     elif self.wx.CurrentChat() in [i for i in listen_groups]:
+        #         print('未读消息为：', msg)
+        #         self.wx.SendMsg(msg=msg, who=send_to_who)
+        #         self.wx.ChatWith(who='文件传输助手')  # 跳回文件传输助手，以免有新消息检测不到
+        #     time.sleep(3)
+
 
 if __name__ == '__main__':
     # 获取微信窗口对象
@@ -152,10 +220,11 @@ if __name__ == '__main__':
     # wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
     # wiu.send_msg()  # 发送消息
     # wiu.send_files()  # 发送文件
-    wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），与「获取消息」合用，「检测消息后做动作」。
+    # wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），与「获取消息」合用，「检测消息后做动作」。
     # wiu.get_current_name()  # 获取当前窗口名称，用于判断
     # wiu.listen_chat_2()  # 监听消息，自定义
     # wiu.listen_all()  # 监听所有消息（未被屏蔽）
+    wiu.listen_and_transpond()  # 监听且转发（过滤消息用）
 
 # 后续功能：转发消息；
 #

@@ -141,3 +141,4 @@
 2024-02-20 11:20:58.056 elements.py[41] _split -> Find Control Timeout(0s): {ControlType: ButtonControl}
 2024-02-20 11:25:10.524 elements.py[41] _split -> Find Control Timeout(0s): {ControlType: ButtonControl}
 2024-02-20 11:25:11.099 elements.py[41] _split -> Find Control Timeout(0s): {ControlType: ButtonControl}
+2024-02-20 17:26:48.024 wxauto.py[256] SendMsg -> Find Control Timeout(10s): {Name: '数据运营', ControlType: EditControl}

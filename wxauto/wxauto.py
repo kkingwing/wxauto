@@ -126,6 +126,36 @@ class WeChat(WeChatBase):
             # print('没有新消息')
             return None
 
+    ###
+    # 这一个功能改了获取所有消息，而不是倒数第二个，有细微差别
+    ###
+    def GetNextNewMessage_3(self, savepic=False):
+        """获取下一个新消息"""
+        msgs_ = self.GetAllMessage()
+        if self.lastmsgid is not None and self.lastmsgid in [i[-1] for i in msgs_[:]]:
+            print('获取当前窗口新消息')
+            idx = [i[-1] for i in msgs_].index(self.lastmsgid)
+            MsgItems = self.C_MsgList.GetChildren()[idx + 1:]
+            msgs = self._getmsgs(MsgItems, savepic)
+            return {self.CurrentChat(): msgs}
+
+        elif self.CheckNewMessage():
+            print('获取其他窗口新消息')
+            while True:
+                self.A_ChatIcon.DoubleClick(simulateMove=False)
+                sessiondict = self.GetSessionList(newmessage=True)
+                if sessiondict:
+                    break
+            for session in sessiondict:
+                self.ChatWith(session)
+                MsgItems = self.C_MsgList.GetChildren()[-sessiondict[session]:]
+                msgs = self._getmsgs(MsgItems, savepic)
+                return {session: msgs}
+        else:
+            # print('没有新消息')
+            return None
+
+
     def GetNextNewMessage(self, savepic=False):
         """获取下一个新消息"""
         msgs_ = self.GetAllMessage()
