@@ -1,7 +1,7 @@
 ###
 # 功能：使用git_wxauto项目，经过修改，达到微信的一些自动化效果。
 # 当前功能：「获取消息、发送消息及文件、获取未读消息、监听消息」
-# 用途：自动任务，
+# 用途：自动任务，群消息监测转发，消息监测。
 ###
 from my_method import write_to_sql
 from my_method import today
@@ -82,9 +82,14 @@ class WechatItemUse:
     # 4.  获取未读消息（未开免打扰），与「获取消息」合用，「检测消息后做动作」。
     ###
     def get_next_new_msg(self):
-        msgs = self.wx.GetNextNewMessage()
-        if msgs == None:
-            print('没有新消息')
+        while True:
+            msgs = self.wx.GetNextNewMessage()
+            if msgs == None:
+                print('没有新消息')
+            else:
+                print(msgs)
+                self.wx.ChatWith(who="文件传输助手")  # 跳到窗口
+            time.sleep(5)
 
     ###
     # 5. 获取当前窗口名称，用于判断，结合判断做动作。
@@ -144,10 +149,13 @@ class WechatItemUse:
 if __name__ == '__main__':
     # 获取微信窗口对象
     wiu = WechatItemUse()
-    wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
+    # wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
     # wiu.send_msg()  # 发送消息
     # wiu.send_files()  # 发送文件
-    # wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），与「获取消息」合用，「检测消息后做动作」。
+    wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），与「获取消息」合用，「检测消息后做动作」。
     # wiu.get_current_name()  # 获取当前窗口名称，用于判断
     # wiu.listen_chat_2()  # 监听消息，自定义
     # wiu.listen_all()  # 监听所有消息（未被屏蔽）
+
+# 后续功能：转发消息；
+#
