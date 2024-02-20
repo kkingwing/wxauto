@@ -115,6 +115,26 @@ class WechatItemUse:
                 print('消息为空，监听中……')
             time.sleep(5)
 
+    ###
+    # 监听所有消息（未被屏蔽） ，以下为指定，若需要监听所有，修改一下为未指定即可。 有所瑕疵，会持续跳助手。
+    ###
+    def listen_all(self):
+        while True:
+            msg = self.wx.GetNextNewMessage(savepic=False)
+            print(msg)
+            # 若存在消息且为指定群
+            if msg and self.get_current_name() == 'gpt测试群':
+                print(msg)
+            else:
+                print('无新消息')
+
+            # 跳到其它位置，以免检测不到。
+            if self.get_current_name() == '文件传输助手':
+                pass
+            else:
+                self.wx.ChatWith(who='文件传输助手')  # 跳回文件传输助手
+            time.sleep(5)
+
 
 if __name__ == '__main__':
     # 获取微信窗口对象
@@ -124,4 +144,5 @@ if __name__ == '__main__':
     # wiu.send_files()  # 发送文件
     # wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），与「获取消息」合用，「检测消息后做动作」。
     # wiu.get_current_name()  # 获取当前窗口名称，用于判断
-    wiu.listen_chat_2()  # 监听消息，自定义
+    # wiu.listen_chat_2()  # 监听消息，自定义
+    wiu.listen_all()  # 监听所有消息（未被屏蔽）
