@@ -1,1 +1,0 @@
-CON = 'mysql://root:huanqlu0123@39.98.120.220:3306/spider?charset=utf8'  # 阿里ECS
