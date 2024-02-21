@@ -226,5 +226,5 @@ if __name__ == '__main__':
     # wiu.listen_all()  # 监听所有消息（未被屏蔽）
     wiu.listen_and_transpond()  # 监听且转发（过滤消息用）
 
-# 后续功能：转发消息；
-#
+# 后续功能：转发消息
+# 想要了解这个项目，需要更深一步了解 uiauto
