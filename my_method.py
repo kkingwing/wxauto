@@ -11,7 +11,8 @@ def write_to_sql(df):
 
 
 def read_sql_info_brief():
-    sql = "SELECT * FROM `info_brief`;"
+    # sql = "SELECT * FROM `info_brief`;"
+    sql = 'SELECT * FROM `info_brief` where 记录日期 = CURRENT_DATE();'
     con = create_engine(CON)
     df = pd.read_sql(sql=sql, con=con)  # 读取sql，获取内容。
     return df

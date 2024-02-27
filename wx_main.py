@@ -76,7 +76,7 @@ class WechatItemUse:
     ###
     def read_sql_and_send_msg(self, ):
         # who = '文件传输助手'
-        whos = ['文件传输助手', "chatgpt测试群", ]  # 暂未支持emoji名称,需要设置备注名
+        whos = ["chatgpt测试群", "峡谷啊", ]  # 暂未支持emoji名称,需要设置备注名
         # whos = ["家有儿女",]
         df = read_sql_info_brief()
         _head = f"今日要闻（{today()}）：\n"
@@ -91,6 +91,8 @@ class WechatItemUse:
                    f"\n"
             msgs.append(_msg)
             time.sleep(1)
+        notion = '（以上内容由AI总结生成，如有冒犯敬请见谅）\n'
+        msgs.append(notion)
         # 将列表转为字符串
         msgs_str = "".join(msgs)
 
