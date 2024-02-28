@@ -173,3 +173,7 @@
 2024-02-26 15:08:21.973 elements.py[41] _split -> Find Control Timeout(0s): {ControlType: ButtonControl}
 2024-02-26 16:37:41.911 wxauto.py[286] SendMsg -> Find Control Timeout(10s): {Name: '家有儿女', ControlType: EditControl}
 2024-02-26 16:42:22.341 wxauto.py[286] SendMsg -> Find Control Timeout(10s): {Name: '家有儿女', ControlType: EditControl}
+2024-02-28 12:46:02.872 wxauto_获取链接.py[54] linkprase -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
+2024-02-28 12:46:03.579 wxauto_获取链接.py[54] linkprase -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
+2024-02-28 12:47:14.835 wxauto_获取链接.py[54] linkprase -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
+2024-02-28 12:47:15.545 wxauto_获取链接.py[54] linkprase -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}

@@ -455,3 +455,5 @@ class WeChat(WeChatBase):
         """切换到聊天页面"""
         self._show()
         self.A_ChatIcon.Click(simulateMove=False)
+
+
