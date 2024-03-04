@@ -43,7 +43,13 @@ class WeChatBase:
                         User = MsgItem.ButtonControl(foundIndex=Index)
                     else:
                         break
-                Msg = [User.Name, MsgItemName, ''.join([str(i) for i in MsgItem.GetRuntimeId()])]
+                winrect = MsgItem.BoundingRectangle
+                mid = (winrect.left + winrect.right)/2
+                if User.BoundingRectangle.left < mid:
+                    name = User.Name
+                else:
+                    name = 'Self'
+                Msg = [name, MsgItemName, ''.join([str(i) for i in MsgItem.GetRuntimeId()])]
             except:
                 Msg = ['SYS', MsgItemName, ''.join([str(i) for i in MsgItem.GetRuntimeId()])]
         uia.SetGlobalSearchTimeout(10.0)
@@ -239,6 +245,37 @@ class ChatWnd(WeChatBase):
                     loadmore_top = loadmore.BoundingRectangle.top
         self.C_MsgList.WheelUp(wheelTimes=1, waitTime=0.1)
         return isload
+
+    def GetGroupMembers(self):
+        """获取当前聊天群成员
+
+        Returns:
+            list: 当前聊天群成员列表
+        """
+        ele = self.UiaAPI.PaneControl(searchDepth=7, foundIndex=6).ButtonControl(Name='聊天信息')
+        try:
+            uia.SetGlobalSearchTimeout(1)
+            rect = ele.BoundingRectangle
+            Click(rect)
+        except:
+            return 
+        finally:
+            uia.SetGlobalSearchTimeout(10)
+        roominfoWnd = self.UiaAPI.WindowControl(ClassName='SessionChatRoomDetailWnd', searchDepth=1)
+        more = roominfoWnd.ButtonControl(Name='查看更多', searchDepth=8)
+        try:
+            uia.SetGlobalSearchTimeout(1)
+            rect = more.BoundingRectangle
+            Click(rect)
+        except:
+            pass
+        finally:
+            uia.SetGlobalSearchTimeout(10)
+        members = [i.Name for i in roominfoWnd.ListControl(Name='聊天成员').GetChildren()]
+        while members[-1] in ['添加', '移出']:
+            members = members[:-1]
+        roominfoWnd.SendKeys('{Esc}')
+        return members
 
 class WeChatImage:
     def __init__(self, language='cn') -> None:

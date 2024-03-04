@@ -4,6 +4,7 @@ import win32process
 import win32gui
 import win32api
 import win32con
+import pyperclip
 from ctypes import (
     Structure,
     c_uint,
@@ -17,6 +18,16 @@ import shutil
 import time
 import os
 
+def set_cursor_pos(x, y):
+    win32api.SetCursorPos((x, y))
+    
+def Click(rect):
+    x = (rect.left + rect.right) // 2
+    y = (rect.top + rect.bottom) // 2
+    set_cursor_pos(x, y)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
+    
 def GetPathByHwnd(hwnd):
     try:
         thread_id, process_id = win32process.GetWindowThreadProcessId(hwnd)
@@ -59,24 +70,25 @@ pDropFiles.fWide = True
 matedata = bytes(pDropFiles)
 
 def SetClipboardText(text: str):
-    if not isinstance(text, str):
-        raise TypeError(f"参数类型必须为str --> {text}")
-    t0 = time.time()
-    while True:
-        if time.time() - t0 > 10:
-            raise TimeoutError(f"设置剪贴板超时！ --> {text}")
-        try:
-            win32clipboard.OpenClipboard()
-            win32clipboard.EmptyClipboard()
-            win32clipboard.SetClipboardData(win32con.CF_UNICODETEXT, text)
-            break
-        except:
-            pass
-        finally:
-            try:
-                win32clipboard.CloseClipboard()
-            except:
-                pass
+    pyperclip.copy(text)
+    # if not isinstance(text, str):
+    #     raise TypeError(f"参数类型必须为str --> {text}")
+    # t0 = time.time()
+    # while True:
+    #     if time.time() - t0 > 10:
+    #         raise TimeoutError(f"设置剪贴板超时！ --> {text}")
+    #     try:
+    #         win32clipboard.OpenClipboard()
+    #         win32clipboard.EmptyClipboard()
+    #         win32clipboard.SetClipboardData(win32con.CF_UNICODETEXT, text)
+    #         break
+    #     except:
+    #         pass
+    #     finally:
+    #         try:
+    #             win32clipboard.CloseClipboard()
+    #         except:
+    #             pass
 
 try:
     from anytree import Node, RenderTree

@@ -267,6 +267,10 @@ class WeChat(WeChatBase):
             who (str): 要发送给谁，如果为None，则发送到当前聊天页面。  *最好完整匹配，优先使用备注
             clear (bool, optional): 是否清除原本的内容，
         """
+        if who in self.listen:
+            chat = self.listen[who]
+            chat.SendMsg(msg)
+            return None
         if not msg:
             return None
         if who:
@@ -308,6 +312,10 @@ class WeChat(WeChatBase):
         Returns:
             bool: 是否成功发送文件
         """
+        if who in self.listen:
+            chat = self.listen[who]
+            chat.SendFiles(filepath)
+            return None
         filelist = []
         if isinstance(filepath, str):
             if not os.path.exists(filepath):
@@ -443,7 +451,9 @@ class WeChat(WeChatBase):
         for who in self.listen:
             chat = self.listen[who]
             chat._show()
-            msgs[who] = chat.GetNewMessage(savepic=chat.savepic)
+            msg = chat.GetNewMessage(savepic=chat.savepic)
+            if [i for i in msg if i[0] != 'Self']:
+                msgs[chat] = msg
         return msgs
 
     def SwitchToContact(self):
@@ -456,4 +466,35 @@ class WeChat(WeChatBase):
         self._show()
         self.A_ChatIcon.Click(simulateMove=False)
 
+
+    def GetGroupMembers(self):
+        """获取当前聊天群成员
+
+        Returns:
+            list: 当前聊天群成员列表
+        """
+        ele = self.ChatBox.PaneControl(searchDepth=7, foundIndex=6).ButtonControl(Name='聊天信息')
+        try:
+            uia.SetGlobalSearchTimeout(1)
+            rect = ele.BoundingRectangle
+            Click(rect)
+        except:
+            return 
+        finally:
+            uia.SetGlobalSearchTimeout(10)
+        roominfoWnd = self.UiaAPI.WindowControl(ClassName='SessionChatRoomDetailWnd', searchDepth=1)
+        more = roominfoWnd.ButtonControl(Name='查看更多', searchDepth=8)
+        try:
+            uia.SetGlobalSearchTimeout(1)
+            rect = more.BoundingRectangle
+            Click(rect)
+        except:
+            pass
+        finally:
+            uia.SetGlobalSearchTimeout(10)
+        members = [i.Name for i in roominfoWnd.ListControl(Name='聊天成员').GetChildren()]
+        while members[-1] in ['添加', '移出']:
+            members = members[:-1]
+        roominfoWnd.SendKeys('{Esc}')
+        return members
 

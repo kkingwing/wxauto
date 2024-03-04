@@ -177,3 +177,14 @@
 2024-02-28 12:46:03.579 wxauto_获取链接.py[54] linkprase -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
 2024-02-28 12:47:14.835 wxauto_获取链接.py[54] linkprase -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
 2024-02-28 12:47:15.545 wxauto_获取链接.py[54] linkprase -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
+2024-03-04 17:31:24.725 wxauto.py[489] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
+2024-03-04 17:31:34.732 wxauto.py[495] GetGroupMembers -> Find Control Timeout(10s): {Name: '聊天成员', ControlType: ListControl}
+2024-03-04 17:31:44.358 wxauto.py[489] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
+2024-03-04 17:38:04.925 wxauto.py[489] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
+2024-03-04 17:38:14.933 wxauto.py[495] GetGroupMembers -> Find Control Timeout(10s): {Name: '聊天成员', ControlType: ListControl}
+2024-03-04 17:39:30.190 wxauto.py[490] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
+2024-03-04 17:43:16.859 wxauto.py[492] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
+2024-03-04 17:43:38.691 wxauto.py[490] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
+2024-03-04 17:44:29.206 wxauto.py[489] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
+2024-03-04 17:44:39.214 wxauto.py[495] GetGroupMembers -> Find Control Timeout(10s): {Name: '聊天成员', ControlType: ListControl}
+2024-03-04 17:56:19.491 wxauto.py[479] GetGroupMembers -> Find Control Timeout(1s): {Name: '聊天信息', ControlType: ButtonControl}
