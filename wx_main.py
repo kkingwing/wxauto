@@ -226,7 +226,7 @@ class WechatItemUse:
 
     def get_group_member(self):
         wx = WeChat()
-        wx.ChatWith(who='wxauto交流')
+        wx.ChatWith(who="天麒的高端会所群")
         return wx.GetGroupMembers()
 
 
@@ -238,7 +238,7 @@ if __name__ == '__main__':
     # wiu.read_sql_and_send_msg()  # 读取资讯sql发送消息
     # wiu.send_files()  # 发送文件  （「文件」使用这个方法发送」）
     # wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），演示没有做任何动作，这是获取未读内容，要结合其它逻辑使用。
-    # wiu.get_current_name()  # 获取当前窗口名称，用于判断
+    # who = wiu.get_current_name()  # 获取当前窗口名称，用于判断
     # wiu.listen_chat_2()  # 监听指定窗口消息，并回复“收到”。（自定义）
     # wiu.listen_all()  # 监听所有消息（未被屏蔽）
     # wiu.listen_and_transpond()  # 监测指定微信群/人消息，过滤并转发。
