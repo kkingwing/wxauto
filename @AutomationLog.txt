@@ -188,3 +188,5 @@
 2024-03-04 17:44:29.206 wxauto.py[489] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
 2024-03-04 17:44:39.214 wxauto.py[495] GetGroupMembers -> Find Control Timeout(10s): {Name: '聊天成员', ControlType: ListControl}
 2024-03-04 17:56:19.491 wxauto.py[479] GetGroupMembers -> Find Control Timeout(1s): {Name: '聊天信息', ControlType: ButtonControl}
+2024-03-11 11:46:30.873 wxauto.py[491] GetGroupMembers -> Find Control Timeout(1s): {Name: '查看更多', ControlType: ButtonControl}
+2024-03-11 11:46:40.881 wxauto.py[497] GetGroupMembers -> Find Control Timeout(10s): {Name: '聊天成员', ControlType: ListControl}

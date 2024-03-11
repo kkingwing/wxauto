@@ -1,6 +1,6 @@
 """
 Author: Cluic
-Update: 2024-02-06
+Update: 2024-03-10
 Version: 3.9.8.15
 """
 
@@ -150,7 +150,8 @@ class WeChat(WeChatBase):
                 self.ChatWith(session)
                 MsgItems = self.C_MsgList.GetChildren()[-sessiondict[session]:]
                 msgs = self._getmsgs(MsgItems, savepic)
-                return {session: msgs}
+                self.lastmsgid = msgs[-1][-1]
+                return {session:msgs}
         else:
             # print('没有新消息')
             return None
@@ -322,7 +323,7 @@ class WeChat(WeChatBase):
                 Warnings.lightred(f'未找到文件：{filepath}，无法成功发送', stacklevel=2)
                 return False
             else:
-                filelist.append(filepath)
+                filelist.append(os.path.realpath(filepath))
         elif isinstance(filepath, (list, tuple, set)):
             for i in filepath:
                 if os.path.exists(i):
@@ -452,7 +453,8 @@ class WeChat(WeChatBase):
             chat = self.listen[who]
             chat._show()
             msg = chat.GetNewMessage(savepic=chat.savepic)
-            if [i for i in msg if i[0] != 'Self']:
+            # if [i for i in msg if i[0] != 'Self']:
+            if msg:
                 msgs[chat] = msg
         return msgs
 
@@ -498,3 +500,25 @@ class WeChat(WeChatBase):
         roominfoWnd.SendKeys('{Esc}')
         return members
 
+    def GetAllFriends(self, keywords=None):
+        """获取所有好友列表
+        注：
+            1. 该方法运行时间取决于好友数量，约每秒6~8个好友的速度
+            2. 该方法未经过大量测试，可能存在未知问题，如有问题请微信群内反馈
+        
+        Args:
+            keywords (str, optional): 搜索关键词，只返回包含关键词的好友列表
+            
+        Returns:
+            list: 所有好友列表
+        """
+        self._show()
+        self.SwitchToContact()
+        self.SessionBox.ListControl(Name="联系人").ButtonControl(Name="通讯录管理").Click(simulateMove=False)
+        contactwnd = ContactWnd()
+        if keywords:
+            contactwnd.Search(keywords)
+        friends = contactwnd.GetAllFriends()
+        contactwnd.Close()
+        self.SwitchToChat()
+        return friends

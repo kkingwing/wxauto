@@ -226,15 +226,21 @@ class WechatItemUse:
 
     def get_group_member(self):
         wx = WeChat()
-        wx.ChatWith(who="天麒的高端会所群")
-        return wx.GetGroupMembers()
+        wx.ChatWith(who="wxauto交流")
+        members = wx.GetGroupMembers()
+        print(f"成员共有：{len(members)}位，详情为：{members}")
+
+    def get_all_friends(self):
+        wx = WeChat()
+        friends = wx.GetAllFriends()
+        print(friends)
 
 
 if __name__ == '__main__':
     # 获取微信窗口对象
     wiu = WechatItemUse()
     # wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
-    wiu.send_msg()  # 发送消息 ,（「文本资讯内容」在这个方法发送）
+    # wiu.send_msg()  # 发送消息 ,（「文本资讯内容」在这个方法发送）
     # wiu.read_sql_and_send_msg()  # 读取资讯sql发送消息
     # wiu.send_files()  # 发送文件  （「文件」使用这个方法发送」）
     # wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），演示没有做任何动作，这是获取未读内容，要结合其它逻辑使用。
@@ -243,8 +249,8 @@ if __name__ == '__main__':
     # wiu.listen_all()  # 监听所有消息（未被屏蔽）
     # wiu.listen_and_transpond()  # 监测指定微信群/人消息，过滤并转发。
     # wiu.get_artile_link() # 获取文章链接
-    group_member = wiu.get_group_member()  # 获取群成员 # FIXME 报错
-    print(group_member)
+    # wiu.get_group_member()  # 获取群成员
+    # wiu.get_all_friends() # 获取所有联系人 {名称、备注、标签}
 
 # 后续功能：转发消息
 # 想要了解这个项目，需要更深一步了解 uiauto
