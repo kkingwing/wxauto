@@ -232,13 +232,9 @@ class WeChat(WeChatBase):
         if newmessage:
             return {i: SessionList[i] for i in SessionList if SessionList[i] > 0}
         return SessionList
-<<<<<<< HEAD
 
-    def ChatWith(self, who):
-=======
-    
+
     def ChatWith(self, who, notfound: Literal['raise', 'ignore']='ignore'):
->>>>>>> upstream/WeChat3.9.8
         '''打开某个聊天框
         
         Args:

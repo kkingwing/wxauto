@@ -9,6 +9,7 @@ from my_method import read_sql_info_brief  # 资讯sql
 
 from wxauto import WeChat
 import time
+from datetime import datetime
 import pandas as pd
 
 
@@ -128,33 +129,6 @@ class WechatItemUse:
         print(current_name)
 
     ###
-    # 6. 监听消息，（监听指定消息窗口，并回复收到）
-    ###
-    def listen_chat_2(self):
-        me = '清易'  # 用于判断最新消息记录是否为非本人
-        who = "chatgpt测试群"
-        self.wx.ChatWith(who=who)  # 跳到窗口
-        msgs_1 = self.wx.GetAllMessage(savepic=False)  # 先读取一次消息，得到当前消息列表
-        last_msg_id_1 = msgs_1[-1][-1] if msgs_1 else None  # 获取最后一句的消息的id
-
-        # 监听消息并回复
-        while True:
-            # 读取最新聊天记录
-            msgs_2 = self.wx.GetNextNewMessage_2(lastmsgid=last_msg_id_1, savepic=False)
-            if msgs_2:
-                for who, new_msgs in msgs_2.items():  # 遍历聊天窗口i
-                    print('新的消息', who, new_msgs)
-                    last_msg_id_1 = msgs_2[who][-1][-1]  # 更新最后一条的聊天记录
-                    for msg in new_msgs:
-                        print(f'消息内容：  {msg[0]}:{msg[1]}')
-                        if msg[0] != 'SYS' and msg[0] != me:
-                            # 这里写发送消息的方法 可以def
-                            self.wx.SendMsg(msg="收到")
-            else:
-                print('消息为空，监听中……')
-            time.sleep(5)
-
-    ###
     # 7. 监听所有消息（未被屏蔽） ，以下为指定，若需要监听所有，修改一下为未指定即可。 有所瑕疵，会持续跳助手。
     ###
     def listen_all(self):
@@ -235,6 +209,54 @@ class WechatItemUse:
         friends = wx.GetAllFriends()
         print(friends)
 
+    ###
+    # 应用1. 群活跃管理：监听消息，（监听指定消息窗口，记录，并后于统计，定时或触发消息发送.）
+    # 单个群监测 √
+    # 保存图片 √
+    # emoji的记录
+    # 多个群监测，下面的方法逻辑不适用多个窗口，需要另改逻辑。
+    ###
+    def listen_one_group(self):
+        # me = '清易'  # 用于判断最新消息记录是否为非本人,新改动,自己为字符串「Self」
+        who = "测试群wxauto"  # 目前是单个群组
+        # who = "联盟-绿洲"
+        self.wx.ChatWith(who=who)  # 跳到窗口
+        msgs_1 = self.wx.GetAllMessage(savepic=False)  # 先读取一次消息，得到当前消息列表
+        print(msgs_1)
+        last_msg_id_1 = msgs_1[-1][-1] if msgs_1 else None  # 获取最后一句的消息的id
+        ###
+        # 监听消息并回复
+        # === 常量区 ===
+        ls = []
+        CACHE_NUMBER = 2
+        # === 常量区 ===
+        while True:
+            time.sleep(0.5)  # 停顿监测 ，因要监测，这里的时间间隔尝试写为单秒。
+            # 读取最新聊天记录
+            msgs_2 = self.wx.GetNextNewMessage_2(lastmsgid=last_msg_id_1, savepic=True)
+            if msgs_2 is not None:
+                for who, new_msgs in msgs_2.items():  # 遍历聊天窗口i
+                    print('新的消息', who, new_msgs)
+                    last_msg_id_1 = msgs_2[who][-1][-1]  # 更新最后一条的聊天记录
+                    for msg in new_msgs:
+                        ds = {}
+                        ds['记录日期'] = datetime.now().strftime("%Y-%m-%d")
+                        ds['群名'] = who.split("(")[0] if "(" in who else who  # 这里的变量群名会自动变化。
+                        ds['发言者'] = "清易" if msg[0] == "Self" else msg[0]
+                        ds['发言内容'] = msg[1]  # 这里如果是图片的话，会是一个图片地址，保存在同目录下的「微信图片」文件夹中。
+                        ds['消息id'] = msg[2]
+                        ds['发言时间'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # 这是一个模拟时间,记录是的电脑时间。需要时刻变化。
+                        print(f'{ds},当前消息缓存长度 {len(ls) + 1} 条消息，满 {CACHE_NUMBER} 条时写入数据库。')
+                        ls.append(ds)
+                        if len(ls) >= CACHE_NUMBER:  # 这是「缓存的消息条数」超过这个数就将缓存写到数据库中.
+                            df = pd.DataFrame(ls)
+                            print(f'消息大于20条,df写入sql{df}')
+                            write_to_sql(df)
+                            print(f'写入完成.')
+                            ls = []  # 重置列表为
+            else:
+                print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  消息为空，监听中……')
+
 
 if __name__ == '__main__':
     # 获取微信窗口对象
@@ -245,18 +267,14 @@ if __name__ == '__main__':
     # wiu.send_files()  # 发送文件  （「文件」使用这个方法发送」）
     # wiu.get_next_new_msg()  # 获取未读消息（未开免打扰），演示没有做任何动作，这是获取未读内容，要结合其它逻辑使用。
     # who = wiu.get_current_name()  # 获取当前窗口名称，用于判断
-    wiu.listen_chat_2()  # 监听指定窗口消息，并回复“收到”。（自定义）
     # wiu.listen_all()  # 监听所有消息（未被屏蔽）
     # wiu.listen_and_transpond()  # 监测指定微信群/人消息，过滤并转发。
     # wiu.get_artile_link() # 获取文章链接
     # wiu.get_group_member()  # 获取群成员
     # wiu.get_all_friends() # 获取所有联系人 {名称、备注、标签}
 
+    wiu.listen_one_group()  # 监听指定窗口消息,记录.
+
 # 后续功能：转发消息
 # 想要了解这个项目，需要更深一步了解 uiauto
-
 # 用3.9.8.15的版本，不然容易 出问题。（见云盘）
-
-# TODO
-# 「实时时间」：关于实时监测的问题，取得监听消息，记录电脑当下时间；
-#
