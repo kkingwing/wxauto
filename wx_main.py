@@ -239,7 +239,7 @@ class WechatItemUse:
 if __name__ == '__main__':
     # 获取微信窗口对象
     wiu = WechatItemUse()
-    wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
+    # wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
     # wiu.send_msg()  # 发送消息 ,（「文本资讯内容」在这个方法发送）
     # wiu.read_sql_and_send_msg()  # 读取资讯sql发送消息
     # wiu.send_files()  # 发送文件  （「文件」使用这个方法发送」）
