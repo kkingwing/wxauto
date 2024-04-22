@@ -1,7 +1,7 @@
 """
 Author: Cluic
-Update: 2024-03-10
-Version: 3.9.8.15
+Update: 2024-04-21
+Version: 3.9.8.15.3
 """
 
 import uiautomation as uia
@@ -135,11 +135,16 @@ class WeChat(WeChatBase):
     def GetNextNewMessage_3(self, savepic=False):
         """获取下一个新消息"""
         msgs_ = self.GetAllMessage()
-        if self.lastmsgid is not None and self.lastmsgid in [i[-1] for i in msgs_[:]]:
+
+        if self.lastmsgid is None:
+            self.lastmsgid = msgs_[-1][-1]
+            return 
+        if self.lastmsgid is not None and self.lastmsgid in [i[-1] for i in msgs_[:-1]]:
             print('获取当前窗口新消息')
             idx = [i[-1] for i in msgs_].index(self.lastmsgid)
             MsgItems = self.C_MsgList.GetChildren()[idx + 1:]
             msgs = self._getmsgs(MsgItems, savepic)
+            self.lastmsgid = msgs[-1][-1]
             return {self.CurrentChat(): msgs}
 
         elif self.CheckNewMessage():
@@ -267,20 +272,56 @@ class WeChat(WeChatBase):
         chatname = firstresult.Name
         firstresult.Click(simulateMove=False)
         return chatname
+    
+    def AtAll(self, msg=None, who=None):
+        """@所有人
+        
+        Args:
+            who (str, optional): 要发送给谁，如果为None，则发送到当前聊天页面。  *最好完整匹配，优先使用备注
+            msg (str, optional): 要发送的文本消息
+        """
+        if FindWindow(name=who, classname='ChatWnd'):
+            chat = ChatWnd(who, self.language)
+            chat.AtAll(msg)
+            return None
+        
+        self._show()
+        if who:
+            try:
+                editbox = self.ChatBox.EditControl(searchDepth=10)
+                if who in self.CurrentChat() and who in editbox.Name:
+                    pass
+                else:
+                    self.ChatWith(who)
+                    editbox = self.ChatBox.EditControl(Name=who, searchDepth=10)
+            except:
+                self.ChatWith(who)
+                editbox = self.ChatBox.EditControl(Name=who, searchDepth=10)
+        else:
+            editbox = self.ChatBox.EditControl(searchDepth=10)
+        editbox.SendKeys('@')
+        atwnd = self.UiaAPI.PaneControl(ClassName='ChatContactMenu')
+        if atwnd.Exists(maxSearchSeconds=0.1):
+            atwnd.ListItemControl(Name='所有人').Click(simulateMove=False)
+            if msg:
+                self.SendMsg(msg, clear=False)
+            else:
+                editbox.SendKeys('{Enter}')
 
-    def SendMsg(self, msg, who=None, clear=True):
+    def SendMsg(self, msg, who=None, clear=True, at=None):
         """发送文本消息
 
         Args:
             msg (str): 要发送的文本消息
             who (str): 要发送给谁，如果为None，则发送到当前聊天页面。  *最好完整匹配，优先使用备注
             clear (bool, optional): 是否清除原本的内容，
+            at (str|list, optional): 要@的人，可以是一个人或多个人，格式为str或list，例如："张三"或["张三", "李四"]
         """
-        if who in self.listen:
-            chat = self.listen[who]
-            chat.SendMsg(msg)
+        if FindWindow(name=who, classname='ChatWnd'):
+            chat = ChatWnd(who, self.language)
+            chat.SendMsg(msg, at=at)
             return None
-        if not msg:
+        if not msg and not at:
             return None
         if who:
             try:
@@ -300,15 +341,26 @@ class WeChat(WeChatBase):
         self._show()
         if not editbox.HasKeyboardFocus:
             editbox.Click(simulateMove=False)
+        if at:
+            if isinstance(at, str):
+                at = [at]
+            for i in at:
+                editbox.SendKeys('@'+i)
+                atwnd = self.UiaAPI.PaneControl(ClassName='ChatContactMenu')
+                if atwnd.Exists(maxSearchSeconds=0.1):
+                    atwnd.SendKeys('{ENTER}')
 
-        t0 = time.time()
-        while True:
-            if time.time() - t0 > 10:
-                raise TimeoutError(f'发送消息超时 --> {editbox.Name} - {msg}')
-            SetClipboardText(msg)
-            editbox.SendKeys('{Ctrl}v')
-            if editbox.GetValuePattern().Value:
-                break
+        if msg:
+            t0 = time.time()
+            while True:
+                if time.time() - t0 > 10:
+                    raise TimeoutError(f'发送消息超时 --> {editbox.Name} - {msg}')
+                editbox.SetFocus()
+                time.sleep(0.1)
+                SetClipboardText(msg)
+                editbox.SendKeys('{Ctrl}v')
+                if editbox.GetValuePattern().Value.strip('￼'):
+                    break
         editbox.SendKeys('{Enter}')
 
     def SendFiles(self, filepath, who=None):
@@ -321,8 +373,8 @@ class WeChat(WeChatBase):
         Returns:
             bool: 是否成功发送文件
         """
-        if who in self.listen:
-            chat = self.listen[who]
+        if FindWindow(name=who, classname='ChatWnd'):
+            chat = ChatWnd(who, self.language)
             chat.SendFiles(filepath)
             return None
         filelist = []
@@ -459,7 +511,7 @@ class WeChat(WeChatBase):
         msgs = {}
         for who in self.listen:
             chat = self.listen[who]
-            chat._show()
+            # chat._show()
             msg = chat.GetNewMessage(savepic=chat.savepic)
             # if [i for i in msg if i[0] != 'Self']:
             if msg:
@@ -530,3 +582,129 @@ class WeChat(WeChatBase):
         contactwnd.Close()
         self.SwitchToChat()
         return friends
+    
+    def GetAllListenChat(self):
+        """获取所有监听对象"""
+        return self.listen
+    
+    def RemoveListenChat(self, who):
+        """移除监听对象"""
+        if who in self.listen:
+            del self.listen[who]
+        else:
+            Warnings.lightred(f'未找到监听对象：{who}', stacklevel=2)
+    
+class WeChatFiles:
+    def __init__(self, language='cn') -> None:
+        self.language = language
+        self.api = uia.WindowControl(ClassName='FileListMgrWnd', searchDepth=1)
+        MainControl3 = [i for i in self.api.GetChildren() if not i.ClassName][0]
+        self.FileBox ,self.Search ,self.SessionBox = MainControl3.GetChildren()
+
+        self.allfiles = self.SessionBox.ButtonControl(Name=self._lang('全部'))
+        self.recentfiles = self.SessionBox.ButtonControl(Name=self._lang('最近使用'))
+        self.whofiles = self.SessionBox.ButtonControl(Name=self._lang('发送者'))
+        self.chatfiles = self.SessionBox.ButtonControl(Name=self._lang('聊天'))
+        self.typefiles = self.SessionBox.ButtonControl(Name=self._lang('类型'))
+
+    def GetSessionName(self, SessionItem):
+        """获取聊天对象的名字
+
+        Args:
+            SessionItem (uiautomation.ListItemControl): 聊天对象控件
+
+        Returns:
+            sessionname (str): 聊天对象名
+        """
+        return SessionItem.Name
+
+    def GetSessionList(self, reset=False):
+        """获取当前聊天列表中的所有聊天对象的名字
+
+        Args:
+            reset (bool): 是否重置SessionItemList
+
+        Returns:
+            session_names (list): 对象名称列表
+        """
+        self.SessionItem = self.SessionBox.ListControl(Name='',searchDepth=3).GetChildren()
+        if reset:
+            self.SessionItemList = []
+        session_names = []
+        for i in range(len(self.SessionItem)):
+            session_names.append(self.GetSessionName(self.SessionItem[i]))
+
+        return session_names
+
+    def __repr__(self) -> str:
+        return f"<wxauto WeChat Image at {hex(id(self))}>"
+
+    def _lang(self, text):
+        return FILE_LANGUAGE[text][self.language]
+
+    def _show(self):
+        HWND = FindWindow(classname='ImagePreviewWnd')
+        win32gui.ShowWindow(HWND, 1)
+        self.api.SwitchToThisWindow()
+
+    def ChatWithFile(self, who):
+        '''打开某个聊天会话
+
+        Args:
+            who ( str ): 要打开的聊天框好友名。
+
+        Returns:
+            chatname ( str ): 打开的聊天框的名字。
+        '''
+        self._show()
+        self.chatfiles.Click(simulateMove=False)
+        sessiondict = self.GetSessionList(True)
+
+        if who in sessiondict:
+            # 直接点击已存在的聊天框
+            self.SessionBox.ListItemControl(Name=who).Click(simulateMove=False)
+            return who
+        else:
+            # 如果聊天框不在列表中，则抛出异常
+            raise TargetNotFoundError(f'未查询到目标：{who}')
+
+    def DownloadFiles(self, who, amount, deadline=None, size=None):
+        '''开始下载文件
+
+        Args:
+            who ( str )：聊天名称
+            amount ( num )：下载的文件数量限制。
+            deadline ( str )：截止日期限制。
+            size ( str )：文件大小限制。
+
+        Returns:
+            result ( bool )：下载是否成功
+
+        '''
+        self._show()
+        itemlist = self.GetSessionList()
+        if who in itemlist:
+            self.item = self.SessionBox.ListItemControl(Name=who)
+            self.item.Click(simulateMove=False)
+        else:
+            print(f'未查询到目标：{who}')
+        itemfileslist = []
+
+        item = self.SessionBox.ListControl(Name='', searchDepth=7).GetParentControl()
+        item = item.GetNextSiblingControl()
+        item = item.ListControl(Name='', searchDepth=5).GetChildren()
+        del item[0]
+
+        for i in range(amount):
+            try:
+
+                itemfileslist.append(item[i].Name)
+                self.itemfiles = item[i]
+                self.itemfiles.Click()
+                time.sleep(0.5)
+            except:
+                pass
+
+    def Close(self):
+        self._show()
+        self.api.SendKeys('{Esc}')

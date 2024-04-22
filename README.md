@@ -4,9 +4,8 @@
 
 Windows版本微信客户端自动化，可实现简单的发送、接收微信消息、保存聊天图片
 
-**相关版本安装包下载**：
-[OneDrive](https://1drv.ms/f/s!AqQw88ELOBiTgcAN_bBQlBaz60PTBg?e=oGoeju) |
-[百度云](https://pan.baidu.com/s/1FvSw0Fk54GGvmQq8xSrNjA?pwd=vsmj)
+**3.9.8.15版本微信安装包下载**：
+[点击下载](https://github.com/tom-snow/wechat-windows-versions/releases/download/v3.9.8.15/WeChatSetup-3.9.8.15.exe)
 
 **文档**：
 [使用文档](https://github.com/cluic/wxauto/blob/WeChat3.9.8/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3.md) |
@@ -15,20 +14,17 @@ Windows版本微信客户端自动化，可实现简单的发送、接收微信�
 |  环境  | 版本 |
 | :----: | :--: |
 |   OS   | [![Windows](https://img.shields.io/badge/Windows-10\|11\|Server2016+-white?logo=windows&logoColor=white)](https://www.microsoft.com/)  |
-|  微信  | [![Wechat](https://img.shields.io/badge/%E5%BE%AE%E4%BF%A1-3.9.8.X-07c160?logo=wechat&logoColor=white)](https://weixin.qq.com/cgi-bin/readtemplate?ang=zh_CN&t=page/faq/win/335/index&faq=win_335) **(3.9.9疑似容易掉线)** |
+|  微信  | [![Wechat](https://img.shields.io/badge/%E5%BE%AE%E4%BF%A1-3.9.8.X-07c160?logo=wechat&logoColor=white)](https://pan.baidu.com/s/1FvSw0Fk54GGvmQq8xSrNjA?pwd=vsmj) **(3.9.9疑似容易掉线)** |
 | Python | [![Python](https://img.shields.io/badge/Python-3.X-blue?logo=python&logoColor=white)](https://www.python.org/) **(不支持3.7.6和3.8.1)**|
 
 
-### 部分版本的微信可能由于UI界面不同从而无法使用，截至2023-11-20最新版本可用
 
 [![Star History Chart](https://api.star-history.com/svg?repos=cluic/wxauto&type=Date)](https://star-history.com/#cluic/wxauto)
 
-## 获取wxauto（请勿直接pip install）
+## 获取wxauto
 cmd窗口：
 ```shell
-git clone https://github.com/cluic/wxauto.git
-cd wxauto
-pip install -r requirements.txt
+pip install wxauto
 ```
 python窗口：
 ```python
@@ -76,7 +72,7 @@ msgs = wx.GetAllMessage(savepic=True)   # 获取聊天记录，及自动下载�
 目前还在开发中，测试案例较少，使用过程中可能遇到各种Bug
 
 如果遇到问题或者有新的想法，希望您可以通过以下两种方式联系我进行改进：
-- 微信（请备注wxauto，加群请备注加入交流群）：louxinghao
+- 微信：louxinghao（请备注wxauto，加群请备注加入交流群，合作、定制请备注合作）
 - ![微信](https://github.com/cluic/wxauto/blob/WeChat3.9.8/utils/wxqrcode.png)
 
 

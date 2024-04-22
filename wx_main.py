@@ -257,11 +257,21 @@ class WechatItemUse:
             else:
                 print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  消息为空，监听中……')
 
+    def at_somebody(self):
+        wx = WeChat()
+        who = 'AI机器人测试'
+        # msg = '通知：测试'
+        # wx.AtAll(msg=msg, who=who)
+
+        at_list = ['巨神峰', 'chenqiuyuan_968']  # 可以是微信号
+        msg = "消息测试"
+        wx.SendMsg(msg=msg, who=who, at=at_list)
+
 
 if __name__ == '__main__':
     # 获取微信窗口对象
     wiu = WechatItemUse()
-    wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
+    # wiu.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
     # wiu.send_msg()  # 发送消息 ,（「文本资讯内容」在这个方法发送）
     # wiu.read_sql_and_send_msg()  # 读取资讯sql发送消息
     # wiu.send_files()  # 发送文件  （「文件」使用这个方法发送」）
@@ -273,7 +283,9 @@ if __name__ == '__main__':
     # wiu.get_group_member()  # 获取群成员
     # wiu.get_all_friends() # 获取所有联系人 {名称、备注、标签}
 
-    wiu.listen_one_group()  # 监听指定窗口消息,记录.
+    # wiu.listen_one_group()  # 监听指定窗口消息,记录.
+
+    wiu.at_somebody()
 
 # 后续功能：转发消息
 # 想要了解这个项目，需要更深一步了解 uiauto

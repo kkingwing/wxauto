@@ -46,14 +46,17 @@ class WeChatBase:
                 winrect = MsgItem.BoundingRectangle
                 mid = (winrect.left + winrect.right)/2
                 if User.BoundingRectangle.left < mid:
-                    name = User.Name
+                    if MsgItem.TextControl().BoundingRectangle.top < User.BoundingRectangle.top:
+                        name = (User.Name, MsgItem.TextControl().Name)
+                    else:
+                        name = (User.Name, User.Name)
                 else:
                     name = 'Self'
                 Msg = [name, MsgItemName, ''.join([str(i) for i in MsgItem.GetRuntimeId()])]
             except:
                 Msg = ['SYS', MsgItemName, ''.join([str(i) for i in MsgItem.GetRuntimeId()])]
         uia.SetGlobalSearchTimeout(10.0)
-        return Msg
+        return ParseMessage(Msg)
     
     def _getmsgs(self, msgitems, savepic=False):
         msgs = []
@@ -87,7 +90,6 @@ class WeChatBase:
             savepath = imgobj.Save()
             paths.append(savepath)
             while True:
-        
                 if imgobj.Next(warning=False):
                     savepath = imgobj.Save()
                     paths.append(savepath)
@@ -97,7 +99,8 @@ class WeChatBase:
             idx = 0
             for msg in msgs:
                 if msg[1] == f"[{self._lang('图片')}]":
-                    msg[1] = paths[idx]
+                    msg.info[1] = paths[idx]
+                    msg.content = paths[idx]
                     idx += 1
         return msgs
     
@@ -123,23 +126,54 @@ class ChatWnd(WeChatBase):
         win32gui.SetWindowPos(self.HWND, -2, 0, 0, 0, 0, 3)
         self.UiaAPI.SwitchToThisWindow()
 
-    def SendMsg(self, msg):
-        """发送文本消息
-
+    def AtAll(self, msg=None):
+        """@所有人
+        
         Args:
-            msg (str): 要发送的文本消息
+            msg (str, optional): 要发送的文本消息
         """
         self._show()
         if not self.editbox.HasKeyboardFocus:
             self.editbox.Click(simulateMove=False)
 
+        self.editbox.SendKeys('@')
+        atwnd = self.UiaAPI.PaneControl(ClassName='ChatContactMenu')
+        if atwnd.Exists(maxSearchSeconds=0.1):
+            atwnd.ListItemControl(Name='所有人').Click(simulateMove=False)
+            if msg:
+                self.SendMsg(msg)
+            else:
+                self.editbox.SendKeys('{Enter}')
+
+    def SendMsg(self, msg, at=None):
+        """发送文本消息
+
+        Args:
+            msg (str): 要发送的文本消息
+            at (str|list, optional): 要@的人，可以是一个人或多个人，格式为str或list，例如："张三"或["张三", "李四"]
+        """
+        self._show()
+        if not self.editbox.HasKeyboardFocus:
+            self.editbox.Click(simulateMove=False)
+
+        if at:
+            if isinstance(at, str):
+                at = [at]
+            for i in at:
+                self.editbox.SendKeys('@'+i)
+                atwnd = self.UiaAPI.PaneControl(ClassName='ChatContactMenu')
+                if atwnd.Exists(maxSearchSeconds=0.1):
+                    atwnd.SendKeys('{ENTER}')
+
         t0 = time.time()
         while True:
             if time.time() - t0 > 10:
                 raise TimeoutError(f'发送消息超时 --> {self.who} - {msg}')
+            editbox.SetFocus()
+            time.sleep(0.1)
             SetClipboardText(msg)
             self.editbox.SendKeys('{Ctrl}v')
-            if self.editbox.GetValuePattern().Value:
+            if self.editbox.GetValuePattern().Value.strip('￼'):
                 break
         self.editbox.SendKeys('{Enter}')
 
@@ -530,3 +564,95 @@ class ContactElement:
         self.element.SendKeys('{Ctrl}a')
         self.element.SendKeys(remark)
         self.element.SendKeys('{Enter}')
+
+
+class Message:
+    type = 'message'
+
+    def __getitem__(self, index):
+        return self.info[index]
+    
+    def __str__(self):
+        return self.content
+    
+    def __repr__(self):
+        return str(self.info[:2])
+    
+
+class SysMessage(Message):
+    type = 'sys'
+    
+    def __init__(self, info):
+        self.info = info
+        self.sender = info[0]
+        self.content = info[1]
+        self.id = info[-1]
+    
+    # def __repr__(self):
+    #     return f'<wxauto SysMessage at {hex(id(self))}>'
+    
+
+class TimeMessage(Message):
+    type = 'time'
+    
+    def __init__(self, info):
+        self.info = info
+        self.time = ParseWeChatTime(info[1])
+        self.sender = info[0]
+        self.content = info[1]
+        self.id = info[-1]
+    
+    # def __repr__(self):
+    #     return f'<wxauto TimeMessage at {hex(id(self))}>'
+    
+
+class RecallMessage(Message):
+    type = 'recall'
+    
+    def __init__(self, info):
+        self.info = info
+        self.sender = info[0]
+        self.content = info[1]
+        self.id = info[-1]
+    
+    # def __repr__(self):
+    #     return f'<wxauto RecallMessage at {hex(id(self))}>'
+    
+
+class SelfMessage(Message):
+    type = 'self'
+    
+    def __init__(self, info):
+        self.info = info
+        self.sender = info[0]
+        self.content = info[1]
+        self.id = info[-1]
+    
+    # def __repr__(self):
+    #     return f'<wxauto SelfMessage at {hex(id(self))}>'
+    
+
+class FriendMessage(Message):
+    type = 'friend'
+    
+    def __init__(self, info):
+        self.info = info
+        self.sender = info[0][0]
+        self.sender_remark = info[0][1]
+        self.content = info[1]
+        self.id = info[-1]
+        self.info[0] = info[0][0]
+    
+    # def __repr__(self):
+    #     return f'<wxauto FriendMessage at {hex(id(self))}>'
+
+
+message_types = {
+    'SYS': SysMessage,
+    'Time': TimeMessage,
+    'Recall': RecallMessage,
+    'Self': SelfMessage
+}
+
+def ParseMessage(data):
+    return message_types.get(data[0], FriendMessage)(data)
