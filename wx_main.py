@@ -283,7 +283,7 @@ if __name__ == '__main__':
     # wiu.get_group_member()  # 获取群成员
     # wiu.get_all_friends() # 获取所有联系人 {名称、备注、标签}
 
-    # wiu.listen_one_group()  # 监听指定窗口消息,记录.
+    # wiu.listen_one_group()  # 监听指定窗口消息,记录。
 
     wiu.at_somebody()
 
