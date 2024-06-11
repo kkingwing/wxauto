@@ -15,3 +15,4 @@ for msg in msgs:
 
 
 print('wxauto测试完成！')
+
