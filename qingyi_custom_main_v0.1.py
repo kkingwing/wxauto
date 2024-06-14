@@ -14,6 +14,7 @@ import time
 from datetime import datetime
 import pandas as pd
 
+CON = "mysql://root:huanqlu0123@39.98.120.220:3306/spider?charset=utf8mb4"
 
 class WechatItemUse:
     def __init__(self):

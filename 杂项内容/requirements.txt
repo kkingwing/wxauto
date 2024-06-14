@@ -2,11 +2,8 @@ uiautomation
 Pillow
 pywin32
 psutil
-<<<<<<< HEAD
-
 sqlalchemy
 mysqlclient
 openpyxl
-=======
 pyperclip
->>>>>>> upstream/WeChat3.9.8
+
