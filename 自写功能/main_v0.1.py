@@ -1,13 +1,12 @@
-# v0.1 清易 - 个人使用版本，整合pull与本地常用功能
+# v0.1 现可用功能罗列
+# 作者：清易
+# 用途：自用
 
 ###
 # 功能：使用git_wxauto项目，经过修改，达到微信的一些自动化效果。
 # 当前功能：「获取消息、发送消息及文件、获取未读消息、监听消息」
 # 用途：自动任务，群消息监测转发，消息监测。
 ###
-from my_method import write_to_sql
-from my_method import today
-from my_method import read_sql_info_brief  # 资讯sql
 
 from wxauto import WeChat
 import time
@@ -16,14 +15,13 @@ import pandas as pd
 
 CON = "mysql://root:huanqlu0123@39.98.120.220:3306/spider?charset=utf8mb4"
 
+
 class WechatItemUse:
     def __init__(self):
         self.wx = WeChat()
-        pass
 
     ###
     # 获取聊天记录(当前窗口,上面已跳转到目标窗口）
-    ###
     def get_msg(self, ):
         who = 'wxauto交流'
         self.wx.ChatWith(who)  # 跳到窗口
@@ -57,12 +55,12 @@ class WechatItemUse:
                 ds = {}
                 ds['说话者'] = msg[0]
                 ds['说话内容'] = msg[1]
-                ds['记录日期'] = today()
+                ds['记录时间'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 ls.append(ds)
         # 写入数据库，保留本次运行的临时表格。
         df = pd.DataFrame(ls)
         df.to_excel('./本次获取内容.xlsx', index=False)
-        write_to_sql(df)  # 写入我的sql
+        # write_to_sql(df)  # 写入我的sql
         print(df)
 
     ###
@@ -192,15 +190,6 @@ class WechatItemUse:
 
             time.sleep(3)
 
-    ###
-    # 获取链接
-    ###
-
-    def get_artile_link(self):
-        from wxauto_获取链接 import linkprase
-        wx = WeChat()
-        linkprase(wx, '清易')
-
     def get_group_member(self):
         wx = WeChat()
         wx.ChatWith(who="wxauto交流")
@@ -221,10 +210,10 @@ class WechatItemUse:
     ###
     def listen_one_group(self):
         # me = '清易'  # 用于判断最新消息记录是否为非本人,新改动,自己为字符串「Self」
-        who = "测试群wxauto"  # 目前是单个群组
-        # who = "联盟-绿洲"
+        who = "wxauto交流"  # 目前是单个群组
+        who = "AI机器人测试"
         self.wx.ChatWith(who=who)  # 跳到窗口
-        msgs_1 = self.wx.GetAllMessage(savepic=False)  # 先读取一次消息，得到当前消息列表
+        msgs_1 = self.wx.GetAllMessage(savepic=False)  # 先读取一次最近消息，得到当前消息列表
         print(msgs_1)
         last_msg_id_1 = msgs_1[-1][-1] if msgs_1 else None  # 获取最后一句的消息的id
         ###
@@ -254,7 +243,7 @@ class WechatItemUse:
                         if len(ls) >= CACHE_NUMBER:  # 这是「缓存的消息条数」超过这个数就将缓存写到数据库中.
                             df = pd.DataFrame(ls)
                             print(f'消息大于20条,df写入sql{df}')
-                            write_to_sql(df)
+                            # write_to_sql(df)
                             print(f'写入完成.')
                             ls = []  # 重置列表为
             else:
@@ -272,11 +261,10 @@ class WechatItemUse:
 
 
 if __name__ == '__main__':
-
-
     # 获取微信窗口对象
     wx = WechatItemUse()
-    wx.get_msg()  # 获取消息 # 当前消息不全，除非运行该项目监听记录。且能增加说话时间点。
+    # wx.get_msg()  # 获取消息 （电脑端消息不全，需要实时记录） 可用 √
+
     # wx.send_msg()  # 发送消息 ,（「文本资讯内容」在这个方法发送）
     # wx.read_sql_and_send_msg()  # 读取资讯sql发送消息
     # wx.send_files()  # 发送文件  （「文件」使用这个方法发送」）
@@ -288,7 +276,7 @@ if __name__ == '__main__':
     # wx.get_group_member()  # 获取群成员
     # wx.get_all_friends() # 获取所有联系人 {名称、备注、标签}
     #
-    # wx.listen_one_group()  # 监听指定窗口消息,记录。
+    wx.listen_one_group()  # 监听指定窗口消息,记录。
     #
     # wx.at_somebody()
 
