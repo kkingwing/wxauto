@@ -303,7 +303,6 @@ formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s (%(filename)
 console_handler.setFormatter(formatter)
 wxlog.addHandler(console_handler)
 wxlog.propagate = False
-
 def set_debug(debug: bool):
     if debug:
         wxlog.setLevel(logging.DEBUG)
