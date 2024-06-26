@@ -1,12 +1,21 @@
+# v0.2 重写本脚本，去除不必要的注释，太过基础的注释浪费阅读精力。
 # v0.1 现可用功能罗列
 # 作者：清易
 # 用途：自用
 
-###
-# 功能：使用git_wxauto项目，经过修改，达到微信的一些自动化效果。
-# 当前功能：「获取消息、发送消息及文件、获取未读消息、监听消息」
-# 用途：自动任务，群消息监测转发，消息监测。
-###
+"""
+说明：使用git_wxauto项目，经过修改，达到微信的一些自动化效果。 本质是使用了 uiautomation 的库进行 ui 操作的应用
+
+功能：
+1、微信消息：统计、记录、分析。 （在分析的步骤根据需要看是否接入AI）
+2、微信消息：内容发送；
+
+应用场景：
++ 群活跃记录分析；
++ 微信群私域内容记录；
++ 客户下单记录；
++ 连接python自动化，在微信发送文件/图片。
+"""
 
 from wxauto import WeChat
 from datetime import datetime
@@ -19,12 +28,9 @@ class WechatItemUse:
     def __init__(self):
         self.wx = WeChat()
 
-    ###
-    # 获取聊天记录(当前窗口,上面已跳转到目标窗口）
     def get_msg(self, ):
         who = 'wxauto交流'
         self.wx.ChatWith(who)  # 跳到窗口
-
         # 1. 加载所有消息 （注，当前没有办法将手机消息同步到电脑端显示，这是目前微信的问题。）
         flag = True  # 循环标志
         roll_times = 2  # 向上滚动次数，若为0则获取所有消息
@@ -263,22 +269,3 @@ if __name__ == '__main__':
     # 获取微信窗口对象
     wx = WechatItemUse()
     wx.get_msg()  # 获取消息 （电脑端消息不全，需要实时记录） 可用 √
-
-    # wx.send_msg()  # 发送消息 ,（「文本资讯内容」在这个方法发送）
-    # wx.read_sql_and_send_msg()  # 读取资讯sql发送消息
-    # wx.send_files()  # 发送文件  （「文件」使用这个方法发送」）
-    # wx.get_next_new_msg()  # 获取未读消息（未开免打扰），演示没有做任何动作，这是获取未读内容，要结合其它逻辑使用。
-    # who = wx.get_current_name()  # 获取当前窗口名称，用于判断
-    # wx.listen_all()  # 监听所有消息（未被屏蔽）
-    # wx.listen_and_transpond()  # 监测指定微信群/人消息，过滤并转发。
-    # wx.get_artile_link() # 获取文章链接
-    # wx.get_group_member()  # 获取群成员
-    # wx.get_all_friends() # 获取所有联系人 {名称、备注、标签}
-    #
-    wx.listen_one_group()  # 监听指定窗口消息,记录。
-    #
-    # wx.at_somebody()
-
-# 后续功能：转发消息
-# 想要了解这个项目，需要更深一步了解 uiauto
-# 用3.9.8.15的版本，不然容易 出问题。（见云盘）
