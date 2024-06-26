@@ -4,12 +4,12 @@
 # 用途：自用
 
 """
-说明：使用git_wxauto项目，经过修改，达到微信的一些自动化效果。 本质是使用了 uiautomation 的库进行 ui 操作的应用
+说明：使用git_wxauto项目，经过修改达到微信的一些自动化效果。 本质是使用了 uiautomation 的库进行 ui 操作的应用
+
 
 功能：
 1、微信消息：统计、记录、分析。 （在分析的步骤根据需要看是否接入AI）
 2、微信消息：内容发送；
-
 应用场景：
 + 群活跃记录分析；
 + 微信群私域内容记录；
@@ -29,6 +29,16 @@ class WechatItemUse:
         self.wx = WeChat()
 
     def get_msg(self, ):
+        """获取消息
+
+        Args:
+
+        Returns:
+
+        Raises:
+
+        """
+
         who = 'wxauto交流'
         self.wx.ChatWith(who)  # 跳到窗口
         # 1. 加载所有消息 （注，当前没有办法将手机消息同步到电脑端显示，这是目前微信的问题。）

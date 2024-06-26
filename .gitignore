@@ -4,3 +4,11 @@ venv/
 *.jpg
 D:\Code\wxauto\wxauto文件/
 config.py
+
+
+
+## 合并新更新文件
+## git remote add upstream https://github.com/cluic/wxauto.git
+# git fetch upstream
+# git checkout main
+# git merge upstream/WeChat3.9.11
