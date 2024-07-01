@@ -65,5 +65,5 @@ while True:
                 write_to_sql(df)
                 print(f'写入完成.')
                 ls = []  # 重置列表为
-    print(f"缓存条数：{ls}")
+    print(f"缓存条数：{len(ls)}")
     time.sleep(wait)
