@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 """
 记录微信消息
 
@@ -14,6 +17,11 @@ import time
 import pandas as pd
 from sqlalchemy import create_engine
 from config import CON
+
+
+import pymysql
+
+pymysql.install_as_MySQLdb()
 
 wx = WeChat()
 
