@@ -40,6 +40,7 @@ def listen_msgs():
     # 指定监听目标，（不能放入while True中，会出现逻辑错误，一直为空）
     listen_list = [
         "wxauto交流",
+        "PSS穿搭交流群3",
         # "python接单群2", # 不能监测企微群
         # "测试群wxauto",
     ]
