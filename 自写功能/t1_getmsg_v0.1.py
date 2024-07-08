@@ -18,7 +18,6 @@ import pandas as pd
 from sqlalchemy import create_engine
 from config import CON
 
-
 import pymysql
 
 pymysql.install_as_MySQLdb()
@@ -37,10 +36,11 @@ def write_to_sql(df):
 
 
 # 指定监听目标，（不能放入while True中，会出现逻辑错误，一直为空）
-listen_list = [
+listen_list = [  # 不可监测企微群
     "wxauto交流",
-    # "python接单群2", # 不能监测企微群
+    # "python接单群2",
     # "测试群wxauto",
+    "天麒的高端会所群"
 ]
 for i in listen_list:
     wx.AddListenChat(who=i, savepic=False)  # 添加监听对象并且自动保存新消息图片
