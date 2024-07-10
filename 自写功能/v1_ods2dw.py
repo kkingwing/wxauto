@@ -1,5 +1,8 @@
 """
 将ods转为dw，并且分析数据。
+fixme： AI总结不准确，需要处理prompt
+
+
 """
 import pandas as pd
 from datetime import datetime
@@ -19,6 +22,9 @@ def ods2dw_wechat():
     df = df[~((df['内容类型'] == 'sys') | (df['内容类型'] == 'time'))]  # ()
     # 2. 清洗不需要内容：使用df内置正则清洗。 （ 去掉 for 前面内容以及'>'）
     df['群名'] = df['群名'].str.replace(r'^.*?for ', '', regex=True).str.replace(r'>$', '', regex=True)
+    # 去掉 「引用」文字及其后的内容
+    df['发言内容'] = df['发言内容'].str.replace(r'引用.*$', '', regex=True)
+
     # 3. 写入为dw
     dw_sql_name = ods_sql_name.replace("ods_", "dw_")
     df.to_sql(dw_sql_name, CON, if_exists='replace')
@@ -77,7 +83,7 @@ import requests
 import json
 
 
-def ernie_128k(speech_string):
+def ernie_128k(speech_string, group_name):
     """
     调用百度api，将prompt_pre和speech_string拼接起来，然后调用百度api，总结微信话题。
 
@@ -86,10 +92,10 @@ def ernie_128k(speech_string):
     """
     print('=' * 100)
     prompt_pre = r"""
-    以下内容是我的一个群聊天记录，我已经清洗过了，每个人的发言使用了换行符\\n隔开，
-    请帮我以总结出讨论的每个话题核心内容（都用10-20个字），结构格式是：「1. 话题（热度）：解决方法；」，注意要按讨论的数量当作热度排名。
-    总结样例如： 「1. 图片识别和撤回处理（热度：高）\\n解决方法：……」，注意解决方法要使用陈述句给出精炼的短句。
-    以下是该群的聊天内容：
+    以下内容是我的一个群聊天记录，我已经清洗过了，每个人的发言使用了换行符\\n隔开
+    请帮我以总结出讨论的每个核心讨论主题（都用10-20个字），结构格式是：「1. 话题（热度）」，注意要按讨论的数量当作热度排名。
+    总结样例如：「1. 图片识别和撤回处理（热度：高）\n 2.……」，注意要精炼，确认每一行总结不超过15个字。
+    以下是该群的聊天内容： 
     """
 
     content = prompt_pre + speech_string
@@ -108,7 +114,7 @@ def ernie_128k(speech_string):
     response = requests.post(url_128k, headers=headers, data=payload)
     _json = response.json()
     _result = _json["result"]
-    print('\n\n🌟今日话题总结:\n', _result)
+    print(f'\n\n🌟今日话题总结（{group_name}）:\n', _result)
     print('=' * 100)
     return _result
 
@@ -116,20 +122,26 @@ def ernie_128k(speech_string):
 def fetch_content():
     """
     取出微信聊天内容，转为字符串，用于传入ai总结为话题。
+
+    主入口，提取dw数据库，遍历群消息做AI话题总题，通过prompt规整格式。
     """
     str_today = datetime.now().strftime('%Y-%m-%d')
     dw_name = "dw_wxauto_wechat_msgs"
     sql = rf"SELECT * FROM {dw_name}"
     df = pd.read_sql(sql, CON)
-    df = df[(df['记录日期'] == str_today) & (df['群名'] == "wxauto交流")]  # 提取群名
-    speech_list = [speech.replace('\n', ' ') for speech in df['发言内容']]  # 预处理列表元素每个换行
-    talk_content = '\n'.join(speech_list)  # 使用\n隔开每行内容，使ai判断断句
-    print(talk_content)
-    return talk_content
+    group_names = list(df['群名'].unique())  # 遍历群名
+    for group_name in group_names:
+        df = df[(df['记录日期'] == str_today) & (df['群名'] == group_name)]  # 提取群名
+        speech_list = [speech.replace('\n', ' ') for speech in df['发言内容']]  # 预处理列表元素每个换行
+        talk_content = '\n'.join(speech_list)  # 使用\n隔开每行内容，使ai判断断句
+        print(f"\n{group_name}:\n{talk_content}\n")
+        ernie_128k(talk_content, group_name)
+        # return talk_content
 
 
+## ods2dw
 # df = ods2dw_wechat()
 # df_analyze(df)
 
+# group_name = "wxauto交流"
 talk_content = fetch_content()
-ernie_128k(talk_content)

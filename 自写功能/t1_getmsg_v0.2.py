@@ -6,9 +6,8 @@
 记录微信消息
 
 1. 先测试记录一天有没有问题
-2. 若没有问题，加入清洗加分析的逻辑
+2. 若没有问辑题，加入清洗加分析的逻
 3. 若也无问题，再加入微信自动化逻辑
-
 
 """
 
@@ -48,8 +47,6 @@ def df2sql(df, save_type, save_name):
         print("请输入正确的保存类型")
 
 
-
-
 def listen_group(groups):
     """
     监听群消息，并保存到数据库
@@ -71,7 +68,7 @@ def listen_group(groups):
             for msg in one_msgs:
                 ds = {}
                 ds['记录日期'] = datetime.now().strftime("%Y-%m-%d")
-                ds['群名'] = chat   # listen_list[0]  # 暂时用这个方法
+                ds['群名'] = chat  # listen_list[0]  # 暂时用这个方法
                 ds['内容类型'] = msg.type  # 需要清洗处理时另外写，这里取原始数据
                 ds['发言者'] = Me if msg[0] == "Self" else msg[0]  # 如果是自己说话，使用名称替换
                 ds['发言内容'] = msg[1]
@@ -91,5 +88,5 @@ def listen_group(groups):
 
 
 # 不可监测企微群
-groups = ["wxauto交流", "测试群wxauto", ]  # "天麒的高端会所群"
+groups = ["wxauto交流", "测试群wxauto", "天麒的高端会所群"]  # "天麒的高端会所群"
 listen_group(groups)
