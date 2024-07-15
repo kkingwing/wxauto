@@ -20,6 +20,7 @@ from config import CON
 import re
 
 import pymysql
+
 pymysql.install_as_MySQLdb()
 
 wx = WeChat()
