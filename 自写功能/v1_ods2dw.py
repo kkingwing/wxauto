@@ -1,9 +1,12 @@
+# v0.3 总结的内容写入到本地txt以方便复制粘贴。
 """
 将ods转为dw，并且分析数据。
 fixme： AI总结不准确，需要处理prompt
 
 
 """
+import os
+
 import pandas as pd
 from datetime import datetime
 import re
@@ -87,6 +90,7 @@ import json
 def ernie_128k(speech_string, group_name):
     """
     调用百度api，将prompt_pre和speech_string拼接起来，然后调用百度api，总结微信话题。
+    本块定义写了正则的嵌套处理。
 
     Args:
         speech_string (str): 需要总结的微信消息df转列表再转为的字符串
@@ -142,18 +146,44 @@ def ernie_128k(speech_string, group_name):
     _json = response.json()
     _result = _json["result"]
 
-    # # 将 _result 转换为字符串
-    # _result_str = str(_result)
-    # # 使用正则表达式处理 _result_str
-    # _result_str = re.sub(r'^.*?1\. ', '', _result_str)
-    # _result_str = re.sub(r'3\. .*?$', '', _result_str)
-    # # 将处理后的字符串转换回原来的数据类型
-    # print(f'清洗后的对照\n{_result_str}')
+    #  以正则的方式 取出ai回答的需要内容，因调试ai过于麻烦，无法特别精确，匹配正则取结果。
+    def re_clean_text(text):
+        """
+        正则表达式清洗文本，取出特征「数字、小数点、冒号/句号」，通过正则拿到据。
 
+        以取出的逻辑，而不是去除的逻辑。
+        """
+        # 取 数字开头，有一个小数点，至到冒号或句号结束
+        pattern = re.compile(r'.*?(\d+\.+.*?)[：。]')  # \d数字  \. 转义小数点， >*？ 任意内容 ， [：。]中文冒号或中文句号
+        matches = pattern.findall(text)  # 使用findall方法找出所有匹配的项
+        # for match in matches:
+        #     print(match.strip())
+        match_str = '\n'.join(matches)  # 将匹配项以逗号分隔的字符串
+        # print(match_str)  # 将匹配项以逗号分隔的字符串)
+        return match_str
 
-    print(f'\n\n🌟今日话题总结（{group_name}）:\n', _result)
+    match_str = re_clean_text(str(_result))
 
-    print('=' * 100)
+    print(f'提取的正则内容：\n{match_str}')
+    ctn_summary = f'\n🌟今日话题总结（{group_name}）:\n{match_str}'
+    print(ctn_summary)
+
+    # 保存到txt
+    folder = "./data/微信总结/"
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    # 打开文件，读取其内容
+    with open(f"./data/微信总结/{group_name}.txt", "r", encoding="utf-8") as f:
+        file_content = f.read()
+    # 将新内容插入到文件内容的开头
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    new_content = f"{current_time}\n{ctn_summary}\n\n\n{file_content}"
+    # 写回文件
+    with open(f"./data/微信总结/{group_name}.txt", "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+    # print('=' * 100)
     return _result
 
 
@@ -177,11 +207,13 @@ def fetch_content():
         if len(df2) == 0:
             pass
         else:
-            print(f"\n{group_name}: 发言条数：{len(df2)}\n")
+            print(f"\n{group_name}: 发言条数：{len(df2)}")
+            # 清洗聊天文本
             speech_list = [speech.replace('\n', ' ') for speech in df2['发言内容']]  # 预处理列表元素每个换行
             speech_list = [re.sub(r'@\S*?\s', '', speech) for speech in speech_list]  # 正则表达式去除@开头与空格之间的文本
             talk_content = '。'.join(speech_list)  # 使用\n隔开每行内容，使ai判断断句
             talk_content = talk_content.replace('=', '')  # 去除聊天内容原有的 = 号
+
             talk_content = '==========<以下是聊天内容：' + talk_content + ' 以上是聊天内容>=========='  # 在前后加上 = ，让ai好判断哪些是聊天内容（标识作用）
             ernie_128k(talk_content, group_name)
 
