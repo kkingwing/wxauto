@@ -221,7 +221,7 @@ def fetch_content():
 ## ods2dw
 # 1. 发言排行
 df = ods2dw_wechat()  # 将ods转为dw，
-# df_analyze(df)  # 发言榜单
+df_analyze(df)  # 发言榜单
 
 # 2. 话题总结
 fetch_content()
