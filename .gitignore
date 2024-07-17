@@ -12,3 +12,12 @@ config.py
 # git fetch upstream
 # git checkout main
 # git merge upstream/WeChat3.9.11
+
+
+## 特殊解决方法，当上传了大文件，若gitignore未生效，删掉缓存，重新上传。
+#```
+#git rm -r --cached .
+#git add .
+#git commit -m 'update.gitignore'
+#git push origin main
+#```
