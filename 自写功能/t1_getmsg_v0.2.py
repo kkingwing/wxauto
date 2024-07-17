@@ -4,11 +4,6 @@
 
 """
 记录微信消息
-
-1. 先测试记录一天有没有问题
-2. 若没有问辑题，加入清洗加分析的逻
-3. 若也无问题，再加入微信自动化逻辑
-
 """
 
 from wxauto import WeChat
@@ -88,5 +83,6 @@ def listen_group(groups):
 
 
 # 不可监测企微群
-groups = ["wxauto交流", "天麒的高端会所群","测试群wxauto"]  # 免打扰也可获得内容
+# 免打扰也可获得内容
+groups = ["wxauto交流", "天麒的高端会所群", "测试群wxauto"]  #
 listen_group(groups)

@@ -1,3 +1,4 @@
+# v0.4 发言榜写入txt(nbsp不需要处理，粘贴到微信会是空格）
 # v0.3 总结的内容写入到本地txt以方便复制粘贴。
 """
 将ods转为dw，并且分析数据。
@@ -10,8 +11,32 @@ import os
 import pandas as pd
 from datetime import datetime
 import re
+import requests
+import json
 
 CON = "mysql://root:huanqlu0123@39.98.120.220:3306/spider?charset=utf8mb4"
+
+
+def write2txt(group_name, content):
+    """将微信总结写入txt文件"""
+    # 保存到txt
+    folder = "./data/微信总结/"
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    txt_path = f"{folder}{group_name}.txt"
+
+    # 打开文件，读取其内容
+    with open(txt_path, "r", encoding="utf-8") as f:
+        file_content = f.read()
+
+    # 在写入内容前加上时间
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    new_content = f"{current_time}\n{content}\n\n\n{file_content}"
+
+    # 写回文件
+    with open(txt_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
 
 
 def ods2dw_wechat():
@@ -55,12 +80,8 @@ def df_analyze(df):
         df2 = pd.DataFrame(pt_i['发言内容']).reset_index()
         df2 = df2.sort_values(by="发言内容", ascending=False)  # 排序
         df2.reset_index(drop=True, inplace=True)  # 重置索引
-        print(f'\n{group_name}'
-              f'\n🏆今日发言榜：\n'
-              f'\n💬发言总计: {df2["发言内容"].sum()} '
-              f'\n👥聊天人数: {df2["发言者"].count()}'
-              f'\n'
-              )
+        ctn1 = f"""\n{group_name}\n🏆今日发言榜：\n\n💬发言总计: {df2["发言内容"].sum()} \n👥聊天人数: {df2["发言者"].count()}\n"""
+        # print(ctn1)
         # 构造「各人-发言概况」输出
         pt_i = pd.DataFrame(pt_i).reset_index()
         pt_i.sort_values(by="发言内容", ascending=False, inplace=True)
@@ -74,17 +95,19 @@ def df_analyze(df):
                     emoji = '🥈'
                 elif i == 2:
                     emoji = '🥉'
-                print(f"{emoji} 「{row['发言者']}」 - {row['发言内容']}")
+                ctn2 = f"\n{emoji} 「{row['发言者']}」 - {row['发言内容']}"
+                # print(ctn2)
+                ctn1 = ctn1 + ctn2
             else:
                 # 对于其他名次使用数字 Emoji
                 emoji = f"{i + 1}"
-                print(f"{emoji}. 「{row['发言者']}」 - {row['发言内容']}")
+                ctn3 = f"\n{emoji}. 「{row['发言者']}」 - {row['发言内容']}"
+                # print(ctn3)
+                ctn1 = ctn1 + ctn3
             if i == 9:  # 只打印前10名
                 break
-
-
-import requests
-import json
+        print(ctn1)
+        write2txt(group_name, ctn1)  # 前面构造content内容，一次性写入txt
 
 
 def ernie_128k(speech_string, group_name):
@@ -168,20 +191,8 @@ def ernie_128k(speech_string, group_name):
     ctn_summary = f'\n🌟今日话题总结（{group_name}）:\n{match_str}'
     print(ctn_summary)
 
-    # 保存到txt
-    folder = "./data/微信总结/"
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-
-    # 打开文件，读取其内容
-    with open(f"./data/微信总结/{group_name}.txt", "r", encoding="utf-8") as f:
-        file_content = f.read()
     # 将新内容插入到文件内容的开头
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    new_content = f"{current_time}\n{ctn_summary}\n\n\n{file_content}"
-    # 写回文件
-    with open(f"./data/微信总结/{group_name}.txt", "w", encoding="utf-8") as f:
-        f.write(new_content)
+    write2txt(group_name=group_name, content=ctn_summary)
 
     # print('=' * 100)
     return _result
@@ -219,9 +230,6 @@ def fetch_content():
 
 
 ## ods2dw
-# 1. 发言排行
 df = ods2dw_wechat()  # 将ods转为dw，
-df_analyze(df)  # 发言榜单
-
-# 2. 话题总结
-fetch_content()
+df_analyze(df)  # 1. 发言排行
+# fetch_content()  # 2. 话题总结

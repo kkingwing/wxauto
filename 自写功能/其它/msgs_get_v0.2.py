@@ -10,7 +10,7 @@
 
 
 """
-from v1a_notice_merged import EmailSendToMe
+from 自写功能.其它.v1a_notice_merged import EmailSendToMe
 
 from wxauto import WeChat
 from datetime import datetime
