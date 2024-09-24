@@ -1,7 +1,7 @@
 """
 Author: Cluic
-Update: 2024-06-22
-Version: 3.9.11.17.1
+Update: 2024-07-22
+Version: 3.9.11.17.4
 """
 
 from . import uiautomation as uia
@@ -23,7 +23,6 @@ class WeChat(WeChatBase):
     lastmsgid: str = None
     listen: dict = dict()
     SessionItemList: list = []
-    UiaAPI: uia.WindowControl = uia.WindowControl(ClassName='WeChatMainWndForPC', searchDepth=1)
 
     def __init__(
             self, 
@@ -35,6 +34,7 @@ class WeChat(WeChatBase):
         Args:
             language (str, optional): 微信客户端语言版本, 可选: cn简体中文  cn_t繁体中文  en英文, 默认cn, 即简体中文
         """
+        self.UiaAPI: uia.WindowControl = uia.WindowControl(ClassName='WeChatMainWndForPC', searchDepth=1)
         set_debug(debug)
         self.language = language
         # self._checkversion()
@@ -565,6 +565,8 @@ class WeChat(WeChatBase):
         Args:
             who (str): 要监听的聊天对象名
             savepic (bool, optional): 是否自动保存聊天图片，只针对该聊天对象有效
+            savefile (bool, optional): 是否自动保存聊天文件，只针对该聊天对象有效
+            savevoice (bool, optional): 是否自动保存聊天语音，只针对该聊天对象有效
         """
         exists = uia.WindowControl(searchDepth=1, ClassName='ChatWnd', Name=who).Exists(maxSearchSeconds=0.1)
         if not exists:
