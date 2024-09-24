@@ -84,5 +84,5 @@ def listen_group(groups):
 
 # 不可监测企微群
 # 免打扰也可获得内容
-groups = ["wxauto交流", "天麒的高端会所群", "wxauto三群"]  #
+groups = ["wxauto三群"]  # "天麒的高端会所群", 
 listen_group(groups)
