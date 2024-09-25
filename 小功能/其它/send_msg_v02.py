@@ -18,7 +18,8 @@ for who in names:
     ]
     wx.SendFiles(filepath=files, who=who)
 
-# msg = '文件已发送，请查收。'
-# who = '工作群A'
-# at = ['张三', '李四']  # 要@的人
-# wx.SendMsg(msg=msg, who=who, at=at)
+    # 发送后艾特某人某消息
+    # who = '工作群A'
+    msg = '文件已发送，请查收。'
+    at = ['张三', '李四']  # 要@的人
+    wx.SendMsg(msg=msg, who=who, at=at)
