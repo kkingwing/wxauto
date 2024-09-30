@@ -71,7 +71,7 @@ def rainbow_group(group):
                 # chat.SendMsg('收到')  # 回复收到
                 if '#夸我' in ds['发言内容'] and ds['发言者'] != 'SYS':
                     # @某人并发送消息
-                    for _ in range(3):  # 发送3条
+                    for _ in range(6):  # 发送3条
                         msg = ' ' + random.choice(girl_ls)  # 语料库随机
                         at = [ds['发言者'], ]  # at = ['数据运营', '墨云霄']  # 要@的人
                         who = group  # 群聊
@@ -79,6 +79,7 @@ def rainbow_group(group):
                         ds['夸奖内容'] = msg
                         print(ds)
                         ls.append(ds)
+
                 # 写入数据库
                 if len(ls) >= CACHE_NUMBER:  # 这是「缓存的消息条数」超过这个数就将缓存写到数据库中.
                     df = pd.DataFrame(ls)
